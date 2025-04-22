@@ -17,3 +17,40 @@ resource "aws_eks_fargate_profile" "main" {
     namespace = "default"
   }
 }
+data "aws_eks_cluster" "main" {
+  name = aws_eks_cluster.main.name
+}
+ 
+data "aws_eks_cluster_auth" "main" {
+  name = aws_eks_cluster.main.name
+}
+ 
+# Configure Kubernetes provider with data from the created EKS cluster
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.main.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.main.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.main.token
+}
+
+# Apply Appointment Service Deployment and Service
+resource "kubernetes_manifest" "appointment_deployment" {
+  manifest = yamldecode(file("${path.module}/kubernetes/appointment/deployment.yaml"))
+}
+ 
+resource "kubernetes_manifest" "appointment_service" {
+  manifest = yamldecode(file("${path.module}/kubernetes/appointment/service.yaml"))
+}
+ 
+# Apply Patient Service Deployment and Service
+resource "kubernetes_manifest" "patient_deployment" {
+  manifest = yamldecode(file("${path.module}/kubernetes/patient/deployment.yaml"))
+}
+ 
+resource "kubernetes_manifest" "patient_service" {
+  manifest = yamldecode(file("${path.module}/kubernetes/patient/service.yaml"))
+}
+ 
+# Apply Ingress for Patient Service
+resource "kubernetes_manifest" "patient_ingress" {
+  manifest = yamldecode(file("${path.module}/kubernetes/patient/ingress.yaml"))
+}
