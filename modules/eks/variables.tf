@@ -20,9 +20,9 @@ variable "eks_fargate_task_execution_role_arn" {
   type = string
 }
 
-variable "cluster_name" {
-  type = string
-}
+# variable "cluster_name" {
+#   type = string
+# }
 
 
 
