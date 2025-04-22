@@ -17,6 +17,4 @@ output "cluster_name" {
   description = "The name of the EKS cluster"
   value       = aws_eks_cluster.main.name
 }
-output "eks_cluster_token" {
-  value = data.aws_eks_cluster_auth.main.token
-}
+
