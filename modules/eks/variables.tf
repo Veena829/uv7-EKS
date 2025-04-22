@@ -25,4 +25,3 @@ variable "eks_fargate_task_execution_role_arn" {
 # }
 
 
-
