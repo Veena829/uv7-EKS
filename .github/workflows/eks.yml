@@ -1,0 +1,41 @@
+name: Deploy Kubernetes Resources
+ 
+on:
+  workflow_dispatch:
+ 
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+ 
+    permissions:
+      id-token: write
+      contents: read
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+ 
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::116981791124:role/idp-role  # Update with your role ARN
+          aws-region: us-west-1
+ 
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.27.0  # Adjust to match your EKS version
+ 
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name my-healthcare-eks --region us-west-1
+ 
+      - name: Verify Kubernetes connection
+        run: kubectl get nodes
+ 
+      - name: Deploy Kubernetes manifests
+        run: |
+          kubectl apply -f modules/eks/kubernetes/appointment/deployment.yaml
+          kubectl apply -f modules/eks/kubernetes/appointment/service.yaml
+          kubectl apply -f modules/eks/kubernetes/patient/deployment.yaml
+          kubectl apply -f modules/eks/kubernetes/patient/service.yaml
+          kubectl apply -f modules/eks/kubernetes/ingress.yaml
