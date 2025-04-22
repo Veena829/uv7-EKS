@@ -1,20 +1,16 @@
-output "eks_cluster_name" {
-  description = "EKS Cluster Name"
-  value       = module.eks.cluster_name
+# modules/eks/outputs.tf
+output "cluster_name" {
+  value = aws_eks_cluster.main.name
 }
 
-output "eks_endpoint" {
-  description = "EKS Cluster API Endpoint"
-  value       = module.eks.cluster_endpoint
+output "cluster_id" {
+  value = aws_eks_cluster.main.id
 }
 
-output "appointment_service_ecr_url" {
-  description = "Appointment Service ECR URL"
-  value       = module.ecr.appointment_service_ecr_url
+output "cluster_endpoint" {
+  value = aws_eks_cluster.main.endpoint
 }
 
-output "patient_service_ecr_url" {
-  description = "Patient Service ECR URL"
-  value       = module.ecr.patient_service_ecr_url
+output "cluster_security_group_id" {
+  value = aws_eks_cluster.main.cluster_security_group_id
 }
-
