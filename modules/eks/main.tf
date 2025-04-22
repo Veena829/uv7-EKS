@@ -37,15 +37,6 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.main.token
 }
 
-# Output for Debugging
-output "eks_cluster_endpoint" {
-  value = data.aws_eks_cluster.main.endpoint
-}
-
-output "eks_cluster_token" {
-  value = data.aws_eks_cluster_auth.main.token
-}
-
 # Apply Appointment Service Deployment and Service
 resource "kubernetes_manifest" "appointment_deployment" {
   provider = kubernetes.eks
