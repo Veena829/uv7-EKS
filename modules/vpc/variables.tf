@@ -37,12 +37,12 @@ variable "private_subnet_2_cidr" {
 variable "az_1" {
   description = "The availability zone for the first subnet"
   type        = string
-  default     = "us-west-2a"
+  default     = "us-west-1a"
 }
 
 variable "az_2" {
   description = "The availability zone for the second subnet"
   type        = string
-  default     = "us-west-2b"
+  default     = "us-west-1b"
 }
 
