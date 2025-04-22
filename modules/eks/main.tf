@@ -52,5 +52,5 @@ resource "kubernetes_manifest" "patient_service" {
  
 # Apply Ingress for Patient Service
 resource "kubernetes_manifest" "patient_ingress" {
-  manifest = yamldecode(file("${path.module}/kubernetes/patient/ingress.yaml"))
+  manifest = yamldecode(file("${path.module}/kubernetes/ingress.yaml"))
 }
