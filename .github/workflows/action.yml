@@ -1,4 +1,4 @@
-name: Terraform and Kubernetes Deployment
+name: Terraform 
 
 on:
   workflow_dispatch:
@@ -23,111 +23,34 @@ jobs:
       pull-requests: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.0
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
 
-    - name: Configure AWS credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::116981791124:role/idp-role
-        aws-region: us-west-1
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::116981791124:role/idp-role
+          aws-region: us-west-1
 
-    - name: Initialize Terraform
-      run: terraform init
+      - name: Initialize Terraform
+        run: terraform init
 
-    - name: Validate Terraform
-      run: terraform validate
+      - name: Validate Terraform
+        run: terraform validate
 
-    - name: Terraform Plan
-      if: github.event.inputs.action == 'plan'
-      run: terraform plan
+      - name: Terraform Plan
+        if: github.event.inputs.action == 'plan'
+        run: terraform plan
 
-    - name: Terraform Apply
-      if: github.event.inputs.action == 'apply'
-      run: terraform apply -auto-approve
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'apply'
+        run: terraform apply -auto-approve
 
-    - name: Terraform Destroy
-      if: github.event.inputs.action == 'destroy'
-      run: terraform destroy -auto-approve
-
-  docker-build-push:
-    runs-on: ubuntu-latest
-    needs: terraform
-
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up AWS CLI
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::116981791124:role/idp-role
-        aws-region: us-west-1
-
-    - name: Authenticate Docker with Amazon ECR for Appointment Service
-      run: |
-        aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.us-west-1.amazonaws.com
-
-    - name: Build Docker image for Appointment Service
-      run: |
-        docker build -t appointment-service ./appointment
-        docker tag appointment-service:latest <your-account-id>.dkr.ecr.us-west-1.amazonaws.com/appointment-service:latest
-
-    - name: Push Appointment Docker Image to ECR
-      run: |
-        docker push <your-account-id>.dkr.ecr.us-west-1.amazonaws.com/appointment-service:latest
-
-    - name: Authenticate Docker with Amazon ECR for Patient Service
-      run: |
-        aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.us-west-1.amazonaws.com
-
-    - name: Build Docker image for Patient Service
-      run: |
-        docker build -t patient-service ./patient
-        docker tag patient-service:latest <your-account-id>.dkr.ecr.us-west-1.amazonaws.com/patient-service:latest
-
-    - name: Push Patient Docker Image to ECR
-      run: |
-        docker push <your-account-id>.dkr.ecr.us-west-1.amazonaws.com/patient-service:latest
-
-  kubernetes-deployment:
-    runs-on: ubuntu-latest
-    needs: docker-build-push
-
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Configure AWS credentials for kubectl access
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::116981791124:role/idp-role
-        aws-region: us-west-1
-
-    - name: Update kubeconfig for EKS
-      run: |
-        aws eks --region us-west-1 update-kubeconfig --name <your-cluster-name>
-
-    - name: Apply Kubernetes Manifests (Deployment, Service, Ingress)
-      run: |
-        kubectl apply -f ./kubernetes/appointment-service/deployment.yaml
-        kubectl apply -f ./kubernetes/appointment-service/service.yaml
-        kubectl apply -f ./kubernetes/patient-service/deployment.yaml
-        kubectl apply -f ./kubernetes/patient-service/service.yaml
-        kubectl apply -f ./kubernetes/ingress.yaml
-
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: terraform destroy -auto-approve
