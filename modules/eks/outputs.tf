@@ -1,14 +1,15 @@
+# modules/eks/outputs.tf
 output "cluster_id" {
   description = "The ID of the EKS cluster"
-  value       = module.eks.cluster_id
+  value       = aws_eks_cluster.main.id
 }
- 
+
 output "cluster_endpoint" {
   description = "The endpoint of the EKS cluster"
-  value       = module.eks.cluster_endpoint
+  value       = aws_eks_cluster.main.endpoint
 }
- 
+
 output "cluster_security_group_id" {
   description = "The security group ID of the EKS cluster"
-  value       = module.eks.cluster_security_group_id
+  value       = aws_eks_cluster.main.cluster_security_group_id
 }
